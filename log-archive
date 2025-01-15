@@ -1,0 +1,38 @@
+#!/bin/bash
+
+if [ -z "$1" ] || [ -z "$2" ]; then
+    echo "Usage: $0 <log_file_path> <backup_directory>"
+    exit 1
+fi
+
+currdate=$(date +"%d%m%y")
+currtime=$(date +"%H%M%S")
+
+logfile=$1
+backupdir=$2
+
+if [ -f "$logfile" ]; then
+    echo "Compressing Log File ...."
+
+    # Check if the backup directory exists; create it if not
+    if [ ! -d "$backupdir" ]; then
+        echo "Directory does not exist. Creating it..."
+        mkdir -p "$backupdir"
+        if [ $? -ne 0 ]; then
+            echo "Failed to create directory. Exiting."
+            exit 1
+        fi
+    fi
+
+    # Compress log file
+    tar -czvf "$backupdir/$(basename "$logfile")_$currdate_$currtime.tar.gz" "$logfile"
+    if [ $? -eq 0 ]; then
+        echo "Compression Completed Successfully"
+    else
+        echo "Compression Failed"
+        exit 1
+    fi
+else
+    echo "$logfile does not exist or is not accessible"
+    exit 1
+fi
